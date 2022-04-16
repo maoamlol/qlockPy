@@ -1,9 +1,27 @@
 import sys
+import requests
+import json
+
+import datetime
 
 from PyQt5.QtWidgets import QMainWindow, QLabel, QApplication
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
+
+time_api = 'http://worldtimeapi.org/api/timezone/Europe/Berlin'
+
+
+def fetch_time() -> datetime:
+    try:
+        response = requests.get(time_api)
+    except Exception as e:
+        print('Something went wrong')
+        print(e)
+        return datetime.datetime.now()
+    data = json.loads(response.text)
+    time = datetime.datetime.fromisoformat(data['datetime'])
+    return time
 
 
 class Qlocktwo(QMainWindow):
@@ -25,18 +43,7 @@ class Qlocktwo(QMainWindow):
         self.half = []
         self.before = []
         self.after = []
-        self.one = []
-        self.two = []
-        self.three = []
-        self.four = []
-        self.five = []
-        self.six = []
-        self.seven = []
-        self.eight = []
-        self.nine = []
-        self.ten = []
-        self.eleven = []
-        self.twelve = []
+        self.hours = {}
         self.o_clock = []
         self.clock_area = None
         self.main_window = None
@@ -76,6 +83,7 @@ class Qlocktwo(QMainWindow):
             label.setFont(QFont(self.font_name, int(self.tile_size * .65)))
             layout.addWidget(label, i // 11, i % 11)
         c = self.clock_area.children()
+        # "ES IST" always on
         [s.setStyleSheet(self.style_sheet()) for s in c[1:3]]
         [s.setStyleSheet(self.style_sheet()) for s in c[4:7]]
         self.pre_five = c[8:12]
@@ -85,22 +93,25 @@ class Qlocktwo(QMainWindow):
         self.half = c[45:49]
         self.before = c[34:37]
         self.after = c[41:45]
-        self.one = c[56:60]
-        self.two = c[63:67]
-        self.three = c[67:71]
-        self.four = c[74:77]
-        self.five = c[52:56]
-        self.six = c[77:83]
-        self.seven = c[89:95]
-        self.eight = c[85:89]
-        self.nine = c[103:107]
-        self.ten = c[100:104]
-        self.eleven = c[50:53]
-        self.twelve = c[95:100]
+        self.hours = {
+            1: c[56:60],
+            2: c[63:67],
+            3: c[67:71],
+            4: c[74:77],
+            5: c[52:56],
+            6: c[77:83],
+            7: c[89:95],
+            8: c[85:89],
+            9: c[103:107],
+            10: c[100:104],
+            11: c[50:53],
+            12: c[95:100]
+        }
         self.o_clock = c[108:]
 
     def style_sheet(self, active=True):
-        return f"QLabel {{background-color: {self.background_color}; color: {self.active_color if active else self.inactive_color}}} "
+        return f"QLabel {{background-color: {self.background_color}; " \
+               f"color: {self.active_color if active else self.inactive_color}}} "
 
     def activate_segment(self, segment):
         [s.setStyleSheet(self.style_sheet()) for s in segment]
@@ -108,15 +119,29 @@ class Qlocktwo(QMainWindow):
     def deactivate_segment(self, segment):
         [s.setStyleSheet(self.style_sheet(False)) for s in segment]
 
-    def example_timer(self):
+    def reset(self):
+        for segment in self.hours.values():
+            self.deactivate_segment(segment)
+        self.deactivate_segment(self.pre_five)
+        self.deactivate_segment(self.pre_ten)
+        self.deactivate_segment(self.pre_quarter)
+        self.deactivate_segment(self.pre_twenty)
+        self.deactivate_segment(self.half)
+        self.deactivate_segment(self.before)
+        self.deactivate_segment(self.after)
+        self.deactivate_segment(self.o_clock)
+
+    def start_timer(self):
         t = QTimer(self)
-        t.setSingleShot(True)
+        t.setInterval(60_000)
         t.timeout.connect(self.timer_action)
         t.start(4000)
 
     def timer_action(self):
-        self.deactivate_segment(self.twelve)
-        print("timer expired loool")
+        time = fetch_time()
+        hour = time.hour
+        minute = time.minute
+        self.reset()
 
 
 def main():
@@ -127,7 +152,6 @@ def main():
     # [s.setStyleSheet(c.style_sheet()) for s in c.pre_ten]
     # [s.setStyleSheet(c.style_sheet()) for s in c.pre_quarter]
     # [s.setStyleSheet(c.style_sheet()) for s in c.pre_twenty]
-    [s.setStyleSheet(c.style_sheet()) for s in c.half]
     # [s.setStyleSheet(c.style_sheet()) for s in c.before]
     # [s.setStyleSheet(c.style_sheet()) for s in c.after]
     # [s.setStyleSheet(c.style_sheet()) for s in c.one]
@@ -137,13 +161,13 @@ def main():
     # [s.setStyleSheet(c.style_sheet()) for s in c.five]
     # [s.setStyleSheet(c.style_sheet()) for s in c.six]
     # [s.setStyleSheet(c.style_sheet()) for s in c.seven]
-    [s.setStyleSheet(c.style_sheet()) for s in c.eight]
     # [s.setStyleSheet(c.style_sheet()) for s in c.nine]
     # [s.setStyleSheet(c.style_sheet()) for s in c.ten]
     # [s.setStyleSheet(c.style_sheet()) for s in c.eleven]
     # [s.setStyleSheet(c.style_sheet()) for s in c.twelve]
-    c.activate_segment(c.twelve)
-    c.example_timer()
+    c.activate_segment(c.hours[12])
+    c.activate_segment(c.o_clock)
+    c.start_timer()
     app.exec()
 
 
