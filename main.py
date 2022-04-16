@@ -1,20 +1,19 @@
-import sys
-import requests
-import json
-
 import datetime
+import json
+import sys
 
-from PyQt5.QtWidgets import QMainWindow, QLabel, QApplication
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+import requests
 from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QLabel, QApplication
 
 time_api = 'http://worldtimeapi.org/api/timezone/Europe/Berlin'
 
 
 def fetch_time() -> datetime:
     try:
-        response = requests.get(time_api)
+        response = requests.get(time_api, timeout=30)
     except Exception as e:
         print('Something went wrong')
         print(e)
@@ -50,8 +49,6 @@ class Qlocktwo(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
-        # self.main_window = QLabel(self)
-        # self.setCentralWidget(self.main_window)
         self.show()
         self.showFullScreen()
         self.setStyleSheet(self.style_sheet(False))
@@ -97,15 +94,15 @@ class Qlocktwo(QMainWindow):
             1: c[56:60],
             2: c[63:67],
             3: c[67:71],
-            4: c[74:77],
+            4: c[74:78],
             5: c[52:56],
-            6: c[77:83],
+            6: c[78:83],
             7: c[89:95],
             8: c[85:89],
             9: c[103:107],
             10: c[100:104],
             11: c[50:53],
-            12: c[95:100]
+            0: c[95:100]
         }
         self.o_clock = c[108:]
 
@@ -133,40 +130,44 @@ class Qlocktwo(QMainWindow):
 
     def start_timer(self):
         t = QTimer(self)
-        t.setInterval(60_000)
+        t.setInterval(5_000)
         t.timeout.connect(self.timer_action)
-        t.start(4000)
+        t.start(0)
 
     def timer_action(self):
         time = fetch_time()
-        hour = time.hour
+        hour = time.hour % 12
         minute = time.minute
         self.reset()
+        print(hour if minute < 23 else hour + 1)
+        self.activate_segment(self.hours[hour if minute < 23 else hour + 1])
+        if 2 < minute < 23 or 32 < minute < 38:
+            self.activate_segment(self.after)
+        elif 22 < minute < 28 or 58 > minute > 37:
+            self.activate_segment(self.before)
+
+        minute_diff = abs(minute - 30)
+
+        if minute_diff < 3:
+            self.activate_segment(self.half)
+        elif minute_diff < 8:
+            self.activate_segment(self.half)
+            self.activate_segment(self.pre_five)
+        elif minute_diff < 13:
+            self.activate_segment(self.pre_twenty)
+        elif minute_diff < 18:
+            self.activate_segment(self.pre_quarter)
+        elif minute_diff < 23:
+            self.activate_segment(self.pre_ten)
+        elif minute_diff < 28:
+            self.activate_segment(self.pre_five)
+        else:
+            self.activate_segment(self.o_clock)
 
 
 def main():
     app = QApplication(sys.argv)
     c = Qlocktwo()
-    # [s.setStyleSheet(c.style_sheet()) for s in c.o_clock]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.pre_five]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.pre_ten]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.pre_quarter]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.pre_twenty]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.before]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.after]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.one]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.two]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.three]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.four]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.five]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.six]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.seven]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.nine]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.ten]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.eleven]
-    # [s.setStyleSheet(c.style_sheet()) for s in c.twelve]
-    c.activate_segment(c.hours[12])
-    c.activate_segment(c.o_clock)
     c.start_timer()
     app.exec()
 
