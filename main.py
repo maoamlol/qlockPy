@@ -22,7 +22,7 @@ def fetch_time() -> datetime:
     time = datetime.datetime.fromisoformat(data['datetime'])
     return time
 
-
+# Testkommentar
 class Qlocktwo(QMainWindow):
     def __init__(self):
         super().__init__()
