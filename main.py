@@ -141,8 +141,10 @@ class Qlocktwo(QMainWindow):
         hour = time.hour % 12
         minute = time.minute
         self.reset()
+
         # print(hour if minute < 23 else hour + 1)
         self.activate_segment(self.hours[hour if minute < 23 else hour + 1])
+
         if 2 < minute < 23 or 32 < minute < 38:
             self.activate_segment(self.after)
         elif 22 < minute < 28 or 58 > minute > 37:
