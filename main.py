@@ -34,7 +34,7 @@ class Qlocktwo(QMainWindow):
         self.font_name = "Exodus Demo Stencil"
         self.background_color = "black"
         self.active_color = "white"
-        self.inactive_color = "rgb(100,100,100)"
+        self.inactive_color = "rgb(20,20,20)"
         self.pre_five = []
         self.pre_ten = []
         self.pre_quarter = []
@@ -53,15 +53,17 @@ class Qlocktwo(QMainWindow):
         self.showFullScreen()
         self.setStyleSheet(self.style_sheet(False))
         self.main_window = QLabel(self)
+        self.resize(1920,1080)
         layout = QHBoxLayout()
         self.main_window.setLayout(layout)
         self.setCentralWidget(self.main_window)
         self.clock_area = QLabel(self.main_window)
+        self.setCursor(Qt.BlankCursor)
         layout.addWidget(self.clock_area)
         if self.height() > self.width():
-            self.tile_size = self.width() // 12
+            self.tile_size = self.width() // 10
         else:
-            self.tile_size = self.height() // 13
+            self.tile_size = self.height() // 11
         self.clock_area.setFixedWidth(self.tile_size * 11)
         self.clock_area.setFixedHeight(self.tile_size * 10)
         self.main_window.setAlignment(Qt.AlignCenter)
@@ -139,7 +141,7 @@ class Qlocktwo(QMainWindow):
         hour = time.hour % 12
         minute = time.minute
         self.reset()
-        print(hour if minute < 23 else hour + 1)
+        # print(hour if minute < 23 else hour + 1)
         self.activate_segment(self.hours[hour if minute < 23 else hour + 1])
         if 2 < minute < 23 or 32 < minute < 38:
             self.activate_segment(self.after)
