@@ -12,16 +12,17 @@ time_api = 'http://worldtimeapi.org/api/timezone/Europe/Berlin'
 
 
 def fetch_time() -> datetime:
+    response = None
     try:
         response = requests.get(time_api, timeout=30)
         data = json.loads(response.text)
         return datetime.datetime.fromisoformat(data['datetime'])
     except Exception as e:
-        print('Something went wrong')
+        print("Error fetching time from API")
         print(e)
+        if response: print(response, response.text)
     return datetime.datetime.now()
 
-# Testkommentar
 class Qlocktwo(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -120,6 +121,7 @@ class Qlocktwo(QMainWindow):
     def reset(self):
         for segment in self.hours.values():
             self.deactivate_segment(segment)
+
         self.deactivate_segment(self.pre_five)
         self.deactivate_segment(self.pre_ten)
         self.deactivate_segment(self.pre_quarter)
@@ -140,7 +142,7 @@ class Qlocktwo(QMainWindow):
         minute = time.minute
         self.reset()
 
-        # print(hour if minute < 23 else hour + 1)
+        # calculate whether to display next or current hour
         self.activate_segment(self.hours[hour if minute < 23 else (hour + 1) % 12])
 
         if 2 < minute < 23 or 32 < minute < 38:
