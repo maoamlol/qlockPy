@@ -131,9 +131,8 @@ class Qlocktwo(QMainWindow):
 
     def start_timer(self):
         t = QTimer(self)
-        t.setInterval(5_000)
         t.timeout.connect(self.timer_action)
-        t.start(0)
+        t.start(5_000)
 
     def timer_action(self):
         time = fetch_time()
@@ -172,6 +171,8 @@ def main():
     app = QApplication(sys.argv)
     c = Qlocktwo()
     c.start_timer()
+    # manually trigger timeout function once to initialize display
+    c.timer_action()
     app.exec()
 
 
