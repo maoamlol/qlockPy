@@ -14,13 +14,12 @@ time_api = 'http://worldtimeapi.org/api/timezone/Europe/Berlin'
 def fetch_time() -> datetime:
     try:
         response = requests.get(time_api, timeout=30)
+        data = json.loads(response.text)
+        return datetime.datetime.fromisoformat(data['datetime'])
     except Exception as e:
         print('Something went wrong')
         print(e)
-        return datetime.datetime.now()
-    data = json.loads(response.text)
-    time = datetime.datetime.fromisoformat(data['datetime'])
-    return time
+    return datetime.datetime.now()
 
 # Testkommentar
 class Qlocktwo(QMainWindow):
