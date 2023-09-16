@@ -53,7 +53,7 @@ class Qlocktwo(QMainWindow):
         self.showFullScreen()
         self.setStyleSheet(self.style_sheet(False))
         self.main_window = QLabel(self)
-        self.resize(1920,1080)
+        self.resize(1024,768)
         layout = QHBoxLayout()
         self.main_window.setLayout(layout)
         self.setCentralWidget(self.main_window)
