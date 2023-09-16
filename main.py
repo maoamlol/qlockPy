@@ -61,9 +61,9 @@ class Qlocktwo(QMainWindow):
         self.setCursor(Qt.BlankCursor)
         layout.addWidget(self.clock_area)
         if self.height() > self.width():
-            self.tile_size = self.width() // 10
+            self.tile_size = self.width() // 9
         else:
-            self.tile_size = self.height() // 11
+            self.tile_size = self.height() // 10
         self.clock_area.setFixedWidth(self.tile_size * 11)
         self.clock_area.setFixedHeight(self.tile_size * 10)
         self.main_window.setAlignment(Qt.AlignCenter)
