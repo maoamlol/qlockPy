@@ -169,8 +169,8 @@ class Qlocktwo(QMainWindow):
         else:
             self.activate_segment(self.o_clock)
             if (hour == 1):
-                self.deactivate_segment(hour)
-                self.activate_segment(100+hour)
+                self.deactivate_segment(self.hours[hour])
+                self.activate_segment(self.hours[100+hour])
                
 
 
