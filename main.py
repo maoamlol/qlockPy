@@ -94,6 +94,7 @@ class Qlocktwo(QMainWindow):
         self.after = c[41:45]
         self.hours = {
             1: c[56:60],
+            101: c[56:59], # In case of full hour only display "EIN" as in "ES IST EIN UHR"
             2: c[63:67],
             3: c[67:71],
             4: c[74:78],
@@ -167,6 +168,10 @@ class Qlocktwo(QMainWindow):
             self.activate_segment(self.pre_five)
         else:
             self.activate_segment(self.o_clock)
+            if (hour == 1):
+                self.deactivate_segment(hour)
+                self.activate_segment(100+hour)
+               
 
 
 def main():
